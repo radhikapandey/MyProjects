@@ -1,0 +1,136 @@
+# Simple Pong in Python 3
+#Using Turtle module (This module is basically used for graphics)
+
+import turtle #importing turtle module
+import winsound    #provides functions for interacting with the operating system. only exists in windows
+
+#creating a window
+wn = turtle.Screen() #making wn object for window
+wn.title("Pong Game")
+wn.bgcolor("black")
+wn.setup(width=800, height=600) #setup method
+wn.tracer(0)   # stops the window from updating and speeds up the game quiet a bit
+
+# Score
+score_a = 0
+score_b = 0
+
+# Paddle A
+paddle_a = turtle.Turtle() #here tutle is the name of module and we are making an object here
+paddle_a.speed(0)  # speed of animation, '0' for MAX ; sets the maximum possible speed otherwise things would be relly slow
+paddle_a.shape("square") #using built-in shape
+paddle_a.color("white")
+paddle_a.shapesize(stretch_wid=5, stretch_len=1)  # 20*5 height basically strech the shapesize of paddle
+paddle_a.penup() #we dont need to draw lines
+paddle_a.goto(-350, 0)  # (0, 0) is in middle ;-350 as x cordinate
+
+# Paddle B
+paddle_b = turtle.Turtle()
+paddle_b.speed(0)  # speed of animation, '0' for MAX
+paddle_b.shape("square")
+paddle_b.color("white")
+paddle_b.shapesize(stretch_wid=5, stretch_len=1)
+paddle_b.penup()
+paddle_b.goto(350, 0)
+
+# Ball
+ball = turtle.Turtle()
+ball.speed(0)
+ball.shape("square")
+ball.color("white")
+ball.penup()
+ball.goto(0, 0)
+ball.dx = 0.1 #separing ball movements in 2 parts as x movement and y movement; d means delta or change ; every tym ball moves it mooves with 2 px
+ball.dy = 0.1
+
+# Pen(a turtle just like ball; here we need scoring)
+pen = turtle.Turtle()
+pen.speed(0)
+pen.shape("square")
+pen.color("white")
+pen.penup() #we dont wanna draw line when the turtle moves
+pen.hideturtle()
+pen.goto(0, 260)
+pen.write("Player A: 0  Player B: 0", align="center", font=("Courier", 24, "normal"))
+
+
+# Functions (FOR MOVING PADDLE)
+def paddle_a_up():
+    y = paddle_a.ycor() #Here paddle A is the name of the object we created and .ycor is from turtle module
+    y += 20 #adds 20 px to y cordinate becuse y increases as we go up
+    paddle_a.sety(y) #we need to calculate the y
+
+
+def paddle_a_down():
+    y = paddle_a.ycor()
+    y -= 20
+    paddle_a.sety(y)
+
+
+def paddle_b_up():
+    y = paddle_b.ycor()
+    y += 20
+    paddle_b.sety(y)
+
+
+def paddle_b_down():
+    y = paddle_b.ycor()
+    y -= 20
+    paddle_b.sety(y)
+
+
+# Keyboard bindings (we made th function but we were not using it
+wn.listen() #lisen for keyboard input
+wn.onkeypress(paddle_a_up, "w") # says that when user presses w call the funtion padlle_a_up
+wn.onkeypress(paddle_a_down, "s")
+wn.onkeypress(paddle_b_up, "Up")
+wn.onkeypress(paddle_b_down, "Down")
+
+# Main game loop
+while True:
+    wn.update()
+
+    # Move the ball
+    ball.setx(ball.xcor() + ball.dx)
+    ball.sety(ball.ycor() + ball.dy)
+
+    # Border checking
+
+    # Top and bottom
+    if ball.ycor() > 290:
+        ball.sety(290)
+        ball.dy *= -1 #reverses the direction of the ball
+        winsound.PlaySound("bounce.wav" , winsound.SND_ASYNC)
+
+    elif ball.ycor() < -290:
+        ball.sety(-290)
+        ball.dy *= -1
+        winsound.PlaySound("bounce.wav" , winsound.SND_ASYNC)
+
+
+    # Left and right
+    if ball.xcor() > 350:
+        score_a += 1 # adds 1 to score a if ball goes right side
+        pen.clear()
+        pen.write("Player A: {}  Player B: {}".format(score_a, score_b), align="center", font=("Courier", 24, "normal"))
+        ball.goto(0, 0) #ball back to the centre
+        ball.dx *= -1
+
+    elif ball.xcor() < -350:
+        score_b += 1
+        pen.clear()
+        pen.write("Player A: {}  Player B: {}".format(score_a, score_b), align="center", font=("Courier", 24, "normal"))#used format method on our string; puts score a and b in {}
+        ball.goto(0, 0)
+        ball.dx *= -1
+
+    # Paddle and ball collisions
+    if ball.xcor() < -340 and ball.ycor() < paddle_a.ycor() + 50 and ball.ycor() > paddle_a.ycor() - 50:
+        ball.dx *= -1
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+
+
+
+    elif ball.xcor() > 340 and ball.ycor() < paddle_b.ycor() + 50 and ball.ycor() > paddle_b.ycor() - 50:
+        ball.dx *= -1
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+
